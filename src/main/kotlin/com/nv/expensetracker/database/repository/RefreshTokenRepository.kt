@@ -10,4 +10,6 @@ interface RefreshTokenRepository: MongoRepository<RefreshToken, ObjectId> {
 
     fun deleteByUserIdAndHashedToken(userId: ObjectId, hashedToken: String)
 
+    fun deleteAllByUserId(userId: ObjectId)
+
 }
