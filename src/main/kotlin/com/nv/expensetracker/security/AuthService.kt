@@ -76,7 +76,7 @@ class AuthService(
 
         return TokenPair(
             accessToken = newAccessToken,
-            refreshToken = refreshToken,
+            refreshToken = newRefreshToken,
         )
     }
 
