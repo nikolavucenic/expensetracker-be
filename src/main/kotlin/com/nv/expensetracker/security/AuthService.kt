@@ -94,6 +94,15 @@ class AuthService(
         )
     }
 
+    fun logout(refreshToken: String) {
+        if (!jwtService.validateRefreshToken(refreshToken)) {
+            throw ResponseStatusException(HttpStatusCode.valueOf(401), "Invalid refresh token.")
+        }
+        val userId = jwtService.getUserIdFromToken(refreshToken)
+        val hashed = hashToken(refreshToken)
+        refreshTokenRepository.deleteByUserIdAndHashedToken(ObjectId(userId), hashed)
+    }
+
     private fun hashToken(token: String): String {
         val digest = MessageDigest.getInstance("SHA-256")
         val hashBytes = digest.digest(token.encodeToByteArray())

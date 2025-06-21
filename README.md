@@ -45,3 +45,14 @@ Updates an existing goal with the provided data.
 Deletes the user's saving goal.
 
 The response object for creating or fetching the goal contains the amount already saved (based on expenses of type `SAVINGS`), progress ratio and the estimated monthly amount required to reach the goal by the target date.
+
+## Profile Endpoints
+
+### `GET /profile`
+Returns the authenticated user's profile information.
+
+### `DELETE /profile`
+Deletes the user account along with all associated data.
+
+### `POST /auth/logout`
+Invalidates the provided refresh token.

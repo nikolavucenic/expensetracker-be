@@ -49,4 +49,11 @@ class AuthController(
     ): TokenPair =
         authService.refresh(body.refreshToken)
 
+    @PostMapping(path = ["/logout"])
+    fun logout(
+        @RequestBody body: RefreshRequest
+    ) {
+        authService.logout(body.refreshToken)
+    }
+
 }
