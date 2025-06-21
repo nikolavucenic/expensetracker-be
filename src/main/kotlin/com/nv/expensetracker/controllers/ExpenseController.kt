@@ -3,7 +3,9 @@ package com.nv.expensetracker.controllers
 import com.nv.expensetracker.controllers.dto.ExpenseRequest
 import com.nv.expensetracker.controllers.dto.ExpenseResponse
 import com.nv.expensetracker.database.model.Expense
+import com.nv.expensetracker.database.repository.ExpenseFilter
 import com.nv.expensetracker.database.repository.ExpenseRepository
+import com.nv.expensetracker.controllers.enums.ExpenseType
 import jakarta.validation.Valid
 import org.bson.types.ObjectId
 import org.springframework.security.core.context.SecurityContextHolder
@@ -13,7 +15,11 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
+import java.time.Instant
 import kotlin.collections.map
 import kotlin.getOrThrow
 import kotlin.let
@@ -50,12 +56,46 @@ class ExpenseController(
 
 
     @GetMapping
-    fun findByOwnerId(): List<ExpenseResponse> =
-        repository.findByOwnerId(
-            ObjectId(SecurityContextHolder.getContext().authentication.principal as String)
-        ).map { expense ->
-            expense.toResponse()
+    fun findByOwnerId(
+        @RequestParam(required = false) sort: String?,
+        @RequestParam(required = false) type: ExpenseType?,
+        @RequestParam(required = false) date: Instant?,
+        @RequestParam(required = false) dateFrom: Instant?,
+        @RequestParam(required = false) dateTo: Instant?,
+        @RequestParam(required = false) amount: Int?,
+        @RequestParam(required = false) amountFrom: Int?,
+        @RequestParam(required = false) amountTo: Int?,
+        @RequestParam(required = false) isRecurring: Boolean?,
+        @RequestParam(required = false) search: String?,
+        @RequestParam(required = false) page: Int?,
+        @RequestParam(required = false) size: Int?,
+    ): List<ExpenseResponse> {
+        val ownerId = ObjectId(SecurityContextHolder.getContext().authentication.principal as String)
+
+        val filter = ExpenseFilter(
+            type = type,
+            date = date,
+            dateFrom = dateFrom,
+            dateTo = dateTo,
+            amount = amount,
+            amountFrom = amountFrom,
+            amountTo = amountTo,
+            isRecurring = isRecurring,
+            search = search,
+        )
+
+        val sortSpec = when (sort) {
+            "date_asc" -> Sort.by(Sort.Direction.ASC, "date")
+            "amount_desc" -> Sort.by(Sort.Direction.DESC, "amount")
+            "amount_asc" -> Sort.by(Sort.Direction.ASC, "amount")
+            else -> Sort.by(Sort.Direction.DESC, "date")
         }
+
+        val pageable = if (page != null && size != null) PageRequest.of(page, size) else null
+
+        val expenses = repository.search(ownerId, filter, sortSpec, pageable)
+        return expenses.map { it.toResponse() }
+    }
 
     @DeleteMapping(path = ["/{id}"])
     fun deleteById(@PathVariable id: String) {
