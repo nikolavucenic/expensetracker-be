@@ -18,12 +18,14 @@ class JwtAuthFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val authHeader = request.getHeader("Authorization")
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            if (jwtService.validateAccessToken(authHeader)) {
-                val userId = jwtService.getUserIdFromToken(authHeader)
-                val auth = UsernamePasswordAuthenticationToken(userId, null, emptyList())
-                SecurityContextHolder.getContext().authentication = auth
+        if (!request.servletPath.contains("auth")) {
+            val authHeader = request.getHeader("Authorization")
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                if (jwtService.validateAccessToken(authHeader)) {
+                    val userId = jwtService.getUserIdFromToken(authHeader)
+                    val auth = UsernamePasswordAuthenticationToken(userId, null, emptyList())
+                    SecurityContextHolder.getContext().authentication = auth
+                }
             }
         }
 
