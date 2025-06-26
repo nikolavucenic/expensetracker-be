@@ -56,3 +56,20 @@ Deletes the user account along with all associated data.
 
 ### `POST /auth/logout`
 Invalidates the provided refresh token.
+
+## Authentication Endpoints
+
+`/register`, `/login`, `/refresh` and `/logout` are available without the `/auth` prefix.
+The legacy `/auth/*` paths continue to work.
+
+### `POST /register`
+Creates a new user account.
+
+### `POST /login`
+Retrieves an access and refresh token pair.
+
+### `POST /refresh`
+Returns a new token pair when provided a valid refresh token.
+
+### `POST /logout`
+Invalidates the provided refresh token.
