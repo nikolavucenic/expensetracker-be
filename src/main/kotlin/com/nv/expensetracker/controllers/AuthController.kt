@@ -33,9 +33,8 @@ class AuthController(
     @PostMapping(path = ["/register"])
     fun register(
         @Valid @RequestBody body: AuthRequest
-    ) {
+    ): TokenPair =
         authService.register(body.email, body.password)
-    }
 
     @PostMapping(path = ["/login"])
     fun login(
