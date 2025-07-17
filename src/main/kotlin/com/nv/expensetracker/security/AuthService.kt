@@ -23,15 +23,26 @@ class AuthService(
     private val refreshTokenRepository: RefreshTokenRepository,
 ) {
 
-    fun register(email: String, password: String): User {
-        val user = userRepository.findByEmail(email.trim())
-        if (user != null)
+    fun register(email: String, password: String): TokenPair {
+        val existing = userRepository.findByEmail(email.trim())
+        if (existing != null)
             throw ResponseStatusException(HttpStatus.CONFLICT, "A user with that email already exists.")
-        return userRepository.save(
+
+        val user = userRepository.save(
             User(
                 email = email,
                 hashedPassword = hashEncoder.encode(password)
             )
+        )
+
+        val accessToken = jwtService.generateAccessToken(user.id.toHexString())
+        val refreshToken = jwtService.generateRefreshToken(user.id.toHexString())
+
+        storeRefreshToken(user.id, refreshToken)
+
+        return TokenPair(
+            accessToken = accessToken,
+            refreshToken = refreshToken,
         )
     }
 
