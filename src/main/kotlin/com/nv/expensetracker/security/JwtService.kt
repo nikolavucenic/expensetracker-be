@@ -22,6 +22,8 @@ class JwtService(
 
     val refreshTokenValidityMs = 30L * 24  * 60 * 60 * 1000
 
+    private val resetSessionValidityMs = 10L * 60L * 1000
+
     private fun generateToken(
         userId: String,
         type: String,
@@ -41,6 +43,9 @@ class JwtService(
     fun generateRefreshToken(userId: String) =
         generateToken(userId, "refresh", refreshTokenValidityMs)
 
+    fun generateResetSessionToken(userId: String) =
+        generateToken(userId, "reset", resetSessionValidityMs)
+
     fun validateAccessToken(token: String): Boolean {
         val claims = parseAllClaims(token) ?: return false
         val tokenType = claims["type"] as? String ?: return false
@@ -51,6 +56,12 @@ class JwtService(
         val claims = parseAllClaims(token) ?: return false
         val tokenType = claims["type"] as? String ?: return false
         return tokenType == "refresh"
+    }
+
+    fun validateResetSessionToken(token: String): Boolean {
+        val claims = parseAllClaims(token) ?: return false
+        val tokenType = claims["type"] as? String ?: return false
+        return tokenType == "reset"
     }
 
     fun getUserIdFromToken(token: String): String {
