@@ -4,6 +4,7 @@ import com.nv.expensetracker.security.AuthService
 import com.nv.expensetracker.security.TokenPair
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -30,6 +31,30 @@ class AuthController(
         val refreshToken: String
     )
 
+    data class RequestPasswordResetRequest(
+        @field:Email(message = "Invalid email format.")
+        val email: String,
+    )
+
+    data class VerifyResetCodeRequest(
+        @field:NotBlank(message = "Verification code is required.")
+        val code: String,
+    )
+
+    data class ResetPasswordRequest(
+        @field:NotBlank(message = "Reset session token is required.")
+        val resetSessionToken: String,
+        @field:Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{9,}\$",
+            message = "Password must be at least 9 characters long and contain at least one digit, an uppercase letter, and a lowercase letter."
+        )
+        val newPassword: String,
+    )
+
+    data class ResetSessionResponse(
+        val resetSessionToken: String,
+    )
+
     @PostMapping(path = ["/register"])
     fun register(
         @Valid @RequestBody body: AuthRequest
@@ -53,6 +78,26 @@ class AuthController(
         @RequestBody body: RefreshRequest
     ) {
         authService.logout(body.refreshToken)
+    }
+
+    @PostMapping(path = ["/request-password-reset"])
+    fun requestPasswordReset(
+        @Valid @RequestBody body: RequestPasswordResetRequest
+    ) {
+        authService.requestPasswordReset(body.email)
+    }
+
+    @PostMapping(path = ["/verify-reset-code"])
+    fun verifyResetCode(
+        @Valid @RequestBody body: VerifyResetCodeRequest
+    ): ResetSessionResponse =
+        ResetSessionResponse(authService.verifyResetCode(body.code))
+
+    @PostMapping(path = ["/reset-password"])
+    fun resetPassword(
+        @Valid @RequestBody body: ResetPasswordRequest
+    ) {
+        authService.resetPassword(body.resetSessionToken, body.newPassword)
     }
 
 }

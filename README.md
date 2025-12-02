@@ -56,3 +56,11 @@ Deletes the user account along with all associated data.
 
 ### `POST /auth/logout`
 Invalidates the provided refresh token.
+
+### Password reset (two-step)
+
+1. `POST /auth/request-password-reset` with the account email. If the account exists, a six-digit code is generated and logged (ready for wiring to email/SMS). The response is always empty to avoid leaking which emails are registered.
+2. `POST /auth/verify-reset-code` with the received code. A short-lived reset session token is returned if the code is valid.
+3. `POST /auth/reset-password` with the reset session token and a new password that matches the existing password rules.
+
+On successful password reset all existing refresh tokens are revoked.
