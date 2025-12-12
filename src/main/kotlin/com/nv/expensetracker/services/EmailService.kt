@@ -16,11 +16,12 @@ class EmailService(
 
     private val logger = LoggerFactory.getLogger(EmailService::class.java)
 
+    @Async
     fun sendResetCodeAsync(recipient: String, code: String) {
         try {
             sendResetCode(recipient, code)
         } catch (ex: Exception) {
-            logger.error("Async password reset email failed for {}", recipient, ex)
+            logger.error("Async password reset email failed for {}, ${ex.message}", recipient, ex)
         }
     }
 
