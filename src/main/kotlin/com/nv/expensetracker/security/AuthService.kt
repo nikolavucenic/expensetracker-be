@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.Base64
+import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
 
 @Service
@@ -139,8 +140,14 @@ class AuthService(
             )
         )
 
-        emailService.sendResetCode(user.email, code)
-        logger.info("Password reset code sent to ${'$'}{user.email}")
+        CompletableFuture.runAsync {
+            runCatching {
+                emailService.sendResetCode(user.email, code)
+                logger.info("Password reset code sent to ${'$'}{user.email}")
+            }.onFailure {
+                logger.error("Failed to send password reset code to ${'$'}{user.email}", it)
+            }
+        }
     }
 
     fun verifyResetCode(code: String): String {
