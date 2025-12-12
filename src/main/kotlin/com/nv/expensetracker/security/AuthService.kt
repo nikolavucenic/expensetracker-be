@@ -150,7 +150,7 @@ class AuthService(
             logger.error("Failed to send password reset code to ${'$'}{user.email}", ex)
             throw ResponseStatusException(
                 HttpStatus.SERVICE_UNAVAILABLE,
-                "Unable to send a reset code right now. Please try again later.",
+                "Unable to send a reset code right now (email delivery failed: ${'$'}{ex.message ?: ex.javaClass.simpleName}). Please try again later.",
                 ex
             )
         }
