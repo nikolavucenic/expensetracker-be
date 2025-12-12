@@ -16,7 +16,6 @@ class EmailService(
 
     private val logger = LoggerFactory.getLogger(EmailService::class.java)
 
-    @Async
     fun sendResetCodeAsync(recipient: String, code: String) {
         try {
             sendResetCode(recipient, code)
