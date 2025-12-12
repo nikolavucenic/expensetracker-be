@@ -6,6 +6,7 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -83,8 +84,9 @@ class AuthController(
     @PostMapping(path = ["/request-password-reset"])
     fun requestPasswordReset(
         @Valid @RequestBody body: RequestPasswordResetRequest
-    ) {
+    ) : ResponseEntity<Void> {
         authService.requestPasswordReset(body.email)
+        return ResponseEntity.ok().build()
     }
 
     @PostMapping(path = ["/verify-reset-code"])
