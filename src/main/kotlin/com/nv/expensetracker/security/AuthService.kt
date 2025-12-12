@@ -6,6 +6,7 @@ import com.nv.expensetracker.database.model.User
 import com.nv.expensetracker.database.repository.PasswordResetCodeRepository
 import com.nv.expensetracker.database.repository.RefreshTokenRepository
 import com.nv.expensetracker.database.repository.UserRepository
+import com.nv.expensetracker.services.EmailService
 import org.bson.types.ObjectId
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
@@ -26,6 +27,7 @@ class AuthService(
     private val hashEncoder: HashEncoder,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val passwordResetCodeRepository: PasswordResetCodeRepository,
+    private val emailService: EmailService,
 ) {
 
     private val logger = LoggerFactory.getLogger(AuthService::class.java)
@@ -137,7 +139,8 @@ class AuthService(
             )
         )
 
-        logger.info("Password reset code for ${'$'}{user.email}: ${'$'}code")
+        emailService.sendResetCode(user.email, code)
+        logger.info("Password reset code sent to ${'$'}{user.email}")
     }
 
     fun verifyResetCode(code: String): String {

@@ -59,8 +59,37 @@ Invalidates the provided refresh token.
 
 ### Password reset (two-step)
 
-1. `POST /auth/request-password-reset` with the account email. If the account exists, a six-digit code is generated and logged (ready for wiring to email/SMS). The response is always empty to avoid leaking which emails are registered.
+1. `POST /auth/request-password-reset` with the account email. If the account exists, a six-digit code is generated, persisted, and emailed to the user. The response is always empty to avoid leaking which emails are registered.
 2. `POST /auth/verify-reset-code` with the received code. A short-lived reset session token is returned if the code is valid.
 3. `POST /auth/reset-password` with the reset session token and a new password that matches the existing password rules.
 
 On successful password reset all existing refresh tokens are revoked.
+
+## Deployment configuration
+
+When deploying (for example on Railway), set the following environment variables so the application can start and send email:
+
+| Variable | Purpose |
+| --- | --- |
+| `PORT` | Port the application should bind to (Railway typically injects this automatically). |
+| `MONGODB_CONNECTION_STRING` | Connection string for the MongoDB instance. |
+| `JWT_SECRET_BASE64` | Base64-encoded secret key for JWT signing. |
+| `SMTP_HOST` | SMTP server host for sending password reset emails. |
+| `SMTP_PORT` | SMTP server port (defaults to `587` if omitted). |
+| `SMTP_USERNAME` | SMTP username. |
+| `SMTP_PASSWORD` | SMTP password. |
+| `MAIL_FROM` | Sender address for outgoing email (defaults to `no-reply@budgeter.rs` if omitted). |
+
+On Railway, add these as project environment variables; the Spring configuration reads them automatically via `application.properties`.
+
+### Gmail SMTP example
+
+If you use Gmail/Google Workspace as the SMTP provider:
+
+- `SMTP_HOST=smtp.gmail.com`
+- `SMTP_PORT=587`
+- `SMTP_USERNAME=<your full Gmail/Workspace email address>` (e.g., `me@budgeter.rs`)
+- `SMTP_PASSWORD=<Gmail App Password>` — generate a 16-character app password in your Google account security settings; standard login passwords will be blocked by Gmail for SMTP.
+- `MAIL_FROM=<the address you set above>` (e.g., `no-reply@budgeter.rs`)
+
+Ensure 2-Step Verification is enabled on the account before creating the app password; Gmail will not accept regular passwords for SMTP.
