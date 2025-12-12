@@ -5,17 +5,27 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.JavaMailSenderImpl
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 
 @Service
 class EmailService(
     private val mailSender: JavaMailSender,
-    @Value("\${mail.from:no-reply@budgeter.rs}") private val fromAddress: String,
+    @Value("\${mail.from:bugeter.rs@gmail.com}") private val fromAddress: String,
 ) {
 
     private val logger = LoggerFactory.getLogger(EmailService::class.java)
 
-    fun sendResetCode(recipient: String, code: String) {
+    @Async
+    fun sendResetCodeAsync(recipient: String, code: String) {
+        try {
+            sendResetCode(recipient, code)
+        } catch (ex: Exception) {
+            logger.error("Async password reset email failed for {}", recipient, ex)
+        }
+    }
+
+    private fun sendResetCode(recipient: String, code: String) {
         val senderImpl = mailSender as? JavaMailSenderImpl
         val resolvedFrom = resolveFromAddress(senderImpl)
 
@@ -23,27 +33,23 @@ class EmailService(
             setTo(recipient)
             from = resolvedFrom
             subject = "Your Expense Tracker password reset code"
-            text = "Use the verification code below to reset your password:\n\n${code}\n\nThis code will expire in 10 minutes."
+            text = """
+                Use the verification code below to reset your password:
+
+                $code
+
+                This code will expire in 10 minutes.
+            """.trimIndent()
         }
 
-        try {
-            mailSender.send(message)
-            logger.info(
-                "Password reset email queued for {} using {} via {}",
-                recipient,
-                resolvedFrom,
-                senderImpl?.host ?: "unknown host",
-            )
-        } catch (ex: Exception) {
-            logger.error(
-                "Failed to send password reset email to {} using {} via {}",
-                recipient,
-                resolvedFrom,
-                senderImpl?.host ?: "unknown host",
-                ex,
-            )
-            throw ex
-        }
+        mailSender.send(message)
+
+        logger.info(
+            "Password reset email sent to {} using {} via {}",
+            recipient,
+            resolvedFrom,
+            senderImpl?.host ?: "unknown host",
+        )
     }
 
     private fun resolveFromAddress(senderImpl: JavaMailSenderImpl?): String {
@@ -53,7 +59,7 @@ class EmailService(
         val username = senderImpl?.username?.takeIf { it.isNotBlank() }
         if (username != null) return username
 
-        logger.warn("mail.from is blank and SMTP username is not set; defaulting to no-reply@budgeter.rs")
-        return "no-reply@budgeter.rs"
+        logger.warn("mail.from is blank and SMTP username is not set; defaulting to bugeter.rs@gmail.com")
+        return "bugeter.rs@gmail.com"
     }
 }

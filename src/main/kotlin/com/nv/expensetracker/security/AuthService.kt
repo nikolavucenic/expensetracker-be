@@ -141,19 +141,7 @@ class AuthService(
             )
         )
 
-        try {
-            CompletableFuture.runAsync { emailService.sendResetCode(user.email, code) }
-                .orTimeout(5, TimeUnit.SECONDS)
-                .join()
-            logger.info("Password reset code sent to ${'$'}{user.email}")
-        } catch (ex: Exception) {
-            logger.error("Failed to send password reset code to ${'$'}{user.email}", ex)
-            throw ResponseStatusException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                "Unable to send a reset code right now (email delivery failed: ${'$'}{ex.message ?: ex.javaClass.simpleName}). Please try again later.",
-                ex
-            )
-        }
+        emailService.sendResetCodeAsync(user.email, code)
     }
 
     fun verifyResetCode(code: String): String {
