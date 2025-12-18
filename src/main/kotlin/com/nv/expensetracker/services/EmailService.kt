@@ -1,17 +1,20 @@
 package com.nv.expensetracker.services
 
+import com.sendgrid.Method
+import com.sendgrid.Request
+import com.sendgrid.SendGrid
+import com.sendgrid.helpers.mail.Mail
+import com.sendgrid.helpers.mail.objects.Content
+import com.sendgrid.helpers.mail.objects.Email
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.mail.SimpleMailMessage
-import org.springframework.mail.javamail.JavaMailSender
-import org.springframework.mail.javamail.JavaMailSenderImpl
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 
 @Service
 class EmailService(
-    private val mailSender: JavaMailSender,
-    @Value("\${mail.from:bugeter.rs@gmail.com}") private val fromAddress: String,
+    @Value("\${sendgrid.api-key:}") private val apiKey: String,
+    @Value("\${mail.from:budgeter.rs@gmail.com}") private val fromAddress: String,
 ) {
 
     private val logger = LoggerFactory.getLogger(EmailService::class.java)
@@ -26,40 +29,56 @@ class EmailService(
     }
 
     private fun sendResetCode(recipient: String, code: String) {
-        val senderImpl = mailSender as? JavaMailSenderImpl
-        val resolvedFrom = resolveFromAddress(senderImpl)
-
-        val message = SimpleMailMessage().apply {
-            setTo(recipient)
-            from = resolvedFrom
-            subject = "Your Expense Tracker password reset code"
-            text = """
-                Use the verification code below to reset your password:
-
-                $code
-
-                This code will expire in 10 minutes.
-            """.trimIndent()
+        if (apiKey.isBlank()) {
+            logger.error("SendGrid API key is not configured; cannot send reset email to {}", recipient)
+            return
         }
 
-        mailSender.send(message)
+        val sender = resolveFromAddress()
+        val emailBody = """
+            Use the verification code below to reset your password:
 
-        logger.info(
-            "Password reset email sent to {} using {} via {}",
-            recipient,
-            resolvedFrom,
-            senderImpl?.host ?: "unknown host",
+            $code
+
+            This code will expire in 10 minutes.
+        """.trimIndent()
+
+        val mail = Mail(
+            Email(sender),
+            "Your Expense Tracker password reset code",
+            Email(recipient),
+            Content("text/plain", emailBody)
         )
+
+        val request = Request().apply {
+            method = Method.POST
+            endpoint = "mail/send"
+            body = mail.build()
+        }
+
+        val response = SendGrid(apiKey).api(request)
+        if (response.statusCode !in 200..299) {
+            logger.error(
+                "Failed to send password reset email to {} with status {} and body {}",
+                recipient,
+                response.statusCode,
+                response.body
+            )
+        } else {
+            logger.info(
+                "Password reset email sent to {} using {} via SendGrid with status {}",
+                recipient,
+                sender,
+                response.statusCode
+            )
+        }
     }
 
-    private fun resolveFromAddress(senderImpl: JavaMailSenderImpl?): String {
+    private fun resolveFromAddress(): String {
         val configured = fromAddress.trim()
         if (configured.isNotEmpty()) return configured
 
-        val username = senderImpl?.username?.takeIf { it.isNotBlank() }
-        if (username != null) return username
-
-        logger.warn("mail.from is blank and SMTP username is not set; defaulting to bugeter.rs@gmail.com")
-        return "bugeter.rs@gmail.com"
+        logger.warn("mail.from is blank; defaulting to budgeter.rs@gmail.com")
+        return "budgeter.rs@gmail.com"
     }
 }
