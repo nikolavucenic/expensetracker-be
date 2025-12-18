@@ -23,7 +23,7 @@ dependencies {
         implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
         implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
         implementation("org.springframework.boot:spring-boot-starter-security")
-        implementation("org.springframework.boot:spring-boot-starter-mail")
+        implementation("com.sendgrid:sendgrid-java:4.10.3")
         implementation("org.springframework.security:spring-security-crypto")
         implementation("org.springframework.boot:spring-boot-starter-validation")
         implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
