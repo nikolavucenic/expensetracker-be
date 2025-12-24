@@ -1,15 +1,12 @@
 package com.nv.expensetracker.services
 
-import com.sendgrid.Method
-import com.sendgrid.Request
-import com.sendgrid.SendGrid
-import com.sendgrid.helpers.mail.Mail
-import com.sendgrid.helpers.mail.objects.Content
-import com.sendgrid.helpers.mail.objects.Email
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
+import java.net.HttpURLConnection
+import java.net.URL
+import java.nio.charset.StandardCharsets
 
 @Service
 class EmailService(
@@ -43,35 +40,64 @@ class EmailService(
             This code will expire in 10 minutes.
         """.trimIndent()
 
-        val mail = Mail(
-            Email(sender),
-            "Your Expense Tracker password reset code",
-            Email(recipient),
-            Content("text/plain", emailBody)
-        )
+        val payload = buildSendGridPayload(recipient, sender, emailBody)
+        val url = URL("https://api.sendgrid.com/v3/mail/send")
 
-        val request = Request().apply {
-            method = Method.POST
-            endpoint = "mail/send"
-            body = mail.build()
+        val connection = (url.openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            instanceFollowRedirects = false
+            setRequestProperty("Authorization", "Bearer $apiKey")
+            setRequestProperty("Content-Type", "application/json")
+            doOutput = true
         }
 
-        val response = SendGrid(apiKey).api(request)
-        if (response.statusCode !in 200..299) {
+        connection.outputStream.use { stream ->
+            stream.write(payload.toByteArray(StandardCharsets.UTF_8))
+        }
+
+        val status = connection.responseCode
+        if (status !in 200..299) {
+            val errorBody = connection.errorStream?.bufferedReader()?.readText()
             logger.error(
                 "Failed to send password reset email to {} with status {} and body {}",
                 recipient,
-                response.statusCode,
-                response.body
+                status,
+                errorBody
             )
         } else {
             logger.info(
                 "Password reset email sent to {} using {} via SendGrid with status {}",
                 recipient,
                 sender,
-                response.statusCode
+                status
             )
         }
+    }
+
+    private fun buildSendGridPayload(recipient: String, sender: String, emailBody: String): String = """
+        {
+          "personalizations": [
+            {
+              "to": [
+                { "email": "$recipient" }
+              ]
+            }
+          ],
+          "from": { "email": "$sender" },
+          "subject": "Your Expense Tracker password reset code",
+          "content": [
+            { "type": "text/plain", "value": ${jsonEscape(emailBody)} }
+          ]
+        }
+    """.trimIndent()
+
+    private fun jsonEscape(value: String): String {
+        val escaped = value
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+        return "\"$escaped\""
     }
 
     private fun resolveFromAddress(): String {
