@@ -145,7 +145,11 @@ class AuthService(
     }
 
     fun verifyResetCode(code: String): String {
-        val hashedCode = hashResetCode(code)
+        val normalizedCode = code.filterNot { it.isWhitespace() }
+        if (normalizedCode.isEmpty()) {
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid reset code.")
+        }
+        val hashedCode = hashResetCode(normalizedCode)
         val resetEntry = passwordResetCodeRepository.findByHashedCode(hashedCode)
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid reset code.")
 
