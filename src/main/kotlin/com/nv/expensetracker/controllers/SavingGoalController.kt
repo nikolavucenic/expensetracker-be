@@ -9,6 +9,7 @@ import com.nv.expensetracker.database.repository.ExpenseRepository
 import com.nv.expensetracker.database.repository.SavingGoalRepository
 import jakarta.validation.Valid
 import org.bson.types.ObjectId
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -96,7 +97,7 @@ class SavingGoalController(
         val expenses = expenseRepository.search(
             ownerId,
             ExpenseFilter(type = ExpenseType.SAVINGS),
-            org.springframework.data.domain.Sort.unsorted(),
+            Sort.unsorted(),
             null
         )
         val saved = expenses.sumOf { it.amount }
