@@ -52,6 +52,7 @@ enum class ExpenseType(val category: ExpenseCategory) {
     CHILD_EXPENSES(ExpenseCategory.MISC),
     FEES_AND_FINES(ExpenseCategory.MISC),
     EMERGENCY(ExpenseCategory.MISC),
+    SAVINGS(ExpenseCategory.MISC),
     OTHER(ExpenseCategory.MISC),
     UNKNOWN(ExpenseCategory.MISC)
 }
