@@ -65,15 +65,6 @@ Invalidates the provided refresh token.
 
 On successful password reset all existing refresh tokens are revoked.
 
-## Category options endpoint
-
-### `GET /categories`
-Returns a fixed list of category options with:
-- `type` (existing `ExpenseType` value)
-- `category` (derived `ExpenseCategory`)
-- `label` (human-readable title)
-- `colorHex` (fixed hex color that clients should use in a dropdown, instead of free text)
-
 ## Deployment configuration
 
 When deploying (for example on Railway), set the following environment variables so the application can start and send email:
