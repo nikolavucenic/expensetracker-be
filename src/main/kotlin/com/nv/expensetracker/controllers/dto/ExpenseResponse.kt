@@ -1,7 +1,10 @@
 package com.nv.expensetracker.controllers.dto
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.nv.expensetracker.controllers.enums.ExpenseCategory
 import com.nv.expensetracker.controllers.enums.ExpenseType
+import java.time.Instant
+
 data class ExpenseResponse(
     val id: String,
     val name: String,
@@ -9,6 +12,7 @@ data class ExpenseResponse(
     val amount: Int,
     val type: ExpenseType,
     val category: ExpenseCategory,
-    val date: Long,
+    @field:JsonSerialize(using = InstantEpochMillisSerializer::class)
+    val date: Instant,
     val isRecurring: Boolean,
 )
