@@ -108,7 +108,7 @@ class AnalyticsController(
             amount = amount,
             type = type,
             category = category,
-            date = date,
+            date = date.toEpochMilli(),
             isRecurring = isRecurring,
         )
 }
