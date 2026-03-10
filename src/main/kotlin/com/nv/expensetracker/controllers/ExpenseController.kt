@@ -74,7 +74,7 @@ class ExpenseController(
 
         val filter = ExpenseFilter(
             type = type,
-            date = date,
+            date = date.toEpochMilli(),
             dateFrom = dateFrom,
             dateTo = dateTo,
             amount = amount,
@@ -116,7 +116,7 @@ class ExpenseController(
             amount = amount,
             type = type,
             category = category,
-            date = date,
+            date = date.toEpochMilli(),
             isRecurring = isRecurring
         )
 
