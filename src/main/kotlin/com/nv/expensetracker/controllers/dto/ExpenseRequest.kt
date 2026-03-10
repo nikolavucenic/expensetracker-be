@@ -3,6 +3,7 @@ package com.nv.expensetracker.controllers.dto
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.nv.expensetracker.controllers.enums.ExpenseType
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import java.time.Instant
 
 data class ExpenseRequest(
@@ -10,7 +11,7 @@ data class ExpenseRequest(
     @field:NotBlank(message = "Expense name can't be empty.")
     val name: String,
     val description: String?,
-    @field:NotBlank(message = "Expense amount can't be empty.")
+    @field:NotNull(message = "Expense amount can't be empty.")
     val amount: Int,
     val type: ExpenseType = ExpenseType.UNKNOWN,
     @field:JsonDeserialize(using = InstantEpochMillisDeserializer::class)
