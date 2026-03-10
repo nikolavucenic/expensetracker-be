@@ -1,5 +1,6 @@
 package com.nv.expensetracker.controllers.dto
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.nv.expensetracker.controllers.enums.ExpenseType
 import jakarta.validation.constraints.NotBlank
 import java.time.Instant
@@ -12,6 +13,7 @@ data class ExpenseRequest(
     @field:NotBlank(message = "Expense amount can't be empty.")
     val amount: Int,
     val type: ExpenseType = ExpenseType.UNKNOWN,
+    @field:JsonDeserialize(using = InstantEpochMillisDeserializer::class)
     val date: Instant = Instant.now(),
     val isRecurring: Boolean = false,
 )
