@@ -1,16 +1,14 @@
 package com.nv.expensetracker.controllers.dto
 
-import com.nv.expensetracker.controllers.enums.ExpenseCategory
-import com.nv.expensetracker.controllers.enums.ExpenseType
 import java.time.LocalDate
 
 data class CategoryPercentage(
-    val category: ExpenseCategory,
+    val category: String,
     val percent: Double,
 )
 
 data class TypeDelta(
-    val type: ExpenseType,
+    val type: String,
     val percent: Double,
 )
 

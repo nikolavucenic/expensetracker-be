@@ -1,13 +1,12 @@
 package com.nv.expensetracker.database.repository
 
-import com.nv.expensetracker.controllers.enums.ExpenseType
 import java.time.Instant
 
 /**
  * Filter parameters for searching expenses.
  */
 data class ExpenseFilter(
-    val type: ExpenseType? = null,
+    val type: String? = null,
     val date: Instant? = null,
     val dateFrom: Instant? = null,
     val dateTo: Instant? = null,
