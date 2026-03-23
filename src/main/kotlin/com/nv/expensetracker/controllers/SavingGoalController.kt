@@ -96,7 +96,7 @@ class SavingGoalController(
     private fun SavingGoal.toResponse(ownerId: ObjectId): SavingGoalResponse {
         val expenses = expenseRepository.search(
             ownerId,
-            ExpenseFilter(type = ExpenseType.SAVINGS),
+            ExpenseFilter(type = ExpenseType.SAVINGS.name),
             Sort.unsorted(),
             null
         )

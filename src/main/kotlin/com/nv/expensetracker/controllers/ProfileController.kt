@@ -1,11 +1,11 @@
 package com.nv.expensetracker.controllers
 
-import com.nv.expensetracker.controllers.dto.ProfileResponse
 import com.nv.expensetracker.database.model.Expense
 import com.nv.expensetracker.database.repository.ExpenseRepository
 import com.nv.expensetracker.database.repository.RefreshTokenRepository
 import com.nv.expensetracker.database.repository.SavingGoalRepository
 import com.nv.expensetracker.database.repository.UserRepository
+import com.nv.expensetracker.controllers.dto.ProfileResponse
 import com.nv.expensetracker.controllers.enums.ExpenseCategory
 import org.bson.types.ObjectId
 import org.springframework.http.HttpStatus
@@ -57,15 +57,16 @@ class ProfileController(
             .mapValues { entry -> entry.value.sumOf { it.amount } }
         val topCategory = totals.maxByOrNull { it.value }?.key ?: return "Newcomer"
         return when (topCategory) {
-            ExpenseCategory.TRAVEL -> "Traveler"
-            ExpenseCategory.FOOD_AND_DRINK -> "Foodie"
-            ExpenseCategory.ENTERTAINMENT -> "Entertainment Lover"
-            ExpenseCategory.ESSENTIALS -> "Practical Spender"
-            ExpenseCategory.HEALTH -> "Health Conscious"
-            ExpenseCategory.EDUCATION -> "Learner"
-            ExpenseCategory.HOME -> "Home Improver"
-            ExpenseCategory.PERSONAL -> "Self-Care Enthusiast"
-            ExpenseCategory.MISC -> "All-Rounder"
+            ExpenseCategory.TRAVEL.name -> "Traveler"
+            ExpenseCategory.FOOD_AND_DRINK.name -> "Foodie"
+            ExpenseCategory.ENTERTAINMENT.name -> "Entertainment Lover"
+            ExpenseCategory.ESSENTIALS.name -> "Practical Spender"
+            ExpenseCategory.HEALTH.name -> "Health Conscious"
+            ExpenseCategory.EDUCATION.name -> "Learner"
+            ExpenseCategory.HOME.name -> "Home Improver"
+            ExpenseCategory.PERSONAL.name -> "Self-Care Enthusiast"
+            ExpenseCategory.MISC.name -> "All-Rounder"
+            else -> "All-Rounder"
         }
     }
 
@@ -78,4 +79,3 @@ class ProfileController(
         return achievements
     }
 }
-
