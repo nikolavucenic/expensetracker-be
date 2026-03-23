@@ -13,7 +13,7 @@ data class ExpenseRequest(
     val description: String?,
     @field:NotNull(message = "Expense amount can't be empty.")
     val amount: Int,
-    val type: ExpenseType = ExpenseType.UNKNOWN,
+    val type: String = ExpenseType.UNKNOWN.name,
     @field:JsonDeserialize(using = InstantEpochMillisDeserializer::class)
     val date: Instant = Instant.now(),
     val isRecurring: Boolean = false,

@@ -6,7 +6,6 @@ import com.nv.expensetracker.controllers.dto.DailyTotal
 import com.nv.expensetracker.controllers.dto.ExpenseDay
 import com.nv.expensetracker.controllers.dto.TypeDelta
 import com.nv.expensetracker.controllers.dto.ExpenseResponse
-import com.nv.expensetracker.controllers.enums.ExpenseCategory
 import com.nv.expensetracker.controllers.enums.ExpenseType
 import com.nv.expensetracker.database.repository.ExpenseRepository
 import org.bson.types.ObjectId
@@ -42,8 +41,7 @@ class AnalyticsController(
 
         val totalAmount = thisMonthExpenses.sumOf { it.amount }
         val totalsByCategory = thisMonthExpenses.groupBy { it.category }.mapValues { it.value.sumOf { e -> e.amount } }
-        val categoryPercentages = ExpenseCategory.values().map { category ->
-            val amount = totalsByCategory[category] ?: 0
+        val categoryPercentages = totalsByCategory.entries.map { (category, amount) ->
             val percent = if (totalAmount == 0) 0.0 else amount.toDouble() * 100 / totalAmount
             CategoryPercentage(category, percent)
         }
@@ -52,14 +50,16 @@ class AnalyticsController(
         val totalsAllTimeByType = expenses.groupBy { it.type }.mapValues { it.value.sumOf { e -> e.amount } }
         val totalsLastMonthByType = lastMonthExpenses.groupBy { it.type }.mapValues { it.value.sumOf { e -> e.amount } }
 
-        val monthVsTotal = ExpenseType.values().map { type ->
+        val allTypes = (totalsAllTimeByType.keys + totalsThisMonthByType.keys + totalsLastMonthByType.keys).toSortedSet()
+
+        val monthVsTotal = allTypes.map { type ->
             val thisMonth = totalsThisMonthByType[type] ?: 0
             val total = totalsAllTimeByType[type] ?: 0
             val delta = if (total == 0) if (thisMonth == 0) 0.0 else 100.0 else (thisMonth - total) * 100.0 / total
             TypeDelta(type, delta)
         }
 
-        val monthVsLastMonth = ExpenseType.values().map { type ->
+        val monthVsLastMonth = allTypes.map { type ->
             val thisMonth = totalsThisMonthByType[type] ?: 0
             val lastMonth = totalsLastMonthByType[type] ?: 0
             val delta = if (lastMonth == 0) if (thisMonth == 0) 0.0 else 100.0 else (thisMonth - lastMonth) * 100.0 / lastMonth
@@ -76,7 +76,7 @@ class AnalyticsController(
             ?.let { ExpenseDay(it.key, it.value) }
 
         val monthsLeft = 12 - now.monthValue
-        val monthlySubscriptions = expenses.filter { it.type == ExpenseType.SUBSCRIPTIONS && it.isRecurring }.sumOf { it.amount }
+        val monthlySubscriptions = expenses.filter { it.type == ExpenseType.SUBSCRIPTIONS.name && it.isRecurring }.sumOf { it.amount }
         val subscriptionSavingsEstimate = monthlySubscriptions * monthsLeft
 
         val daysInMonth = now.lengthOfMonth()

@@ -2,12 +2,16 @@ package com.nv.expensetracker.controllers
 
 import com.nv.expensetracker.controllers.dto.ExpenseRequest
 import com.nv.expensetracker.controllers.dto.ExpenseResponse
+import com.nv.expensetracker.controllers.enums.ExpenseType
+import com.nv.expensetracker.controllers.enums.IncomeType
 import com.nv.expensetracker.database.model.Expense
 import com.nv.expensetracker.database.repository.ExpenseFilter
 import com.nv.expensetracker.database.repository.ExpenseRepository
-import com.nv.expensetracker.controllers.enums.ExpenseType
 import jakarta.validation.Valid
 import org.bson.types.ObjectId
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
+import org.springframework.http.HttpStatus
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,8 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
+import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
 import kotlin.collections.map
 import kotlin.getOrThrow
@@ -37,13 +40,16 @@ class ExpenseController(
         @Valid @RequestBody body: ExpenseRequest
     ): ExpenseResponse =
         repository.runCatching {
+            val normalizedType = body.type.trim().uppercase()
+            val category = resolveCategory(normalizedType, body.amount)
+
             save(
                 Expense(
                     name = body.name,
                     description = body.description,
                     amount = body.amount,
-                    type = body.type,
-                    category = body.type.category,
+                    type = normalizedType,
+                    category = category,
                     date = body.date,
                     isRecurring = body.isRecurring,
                     id = body.id?.let { ObjectId(it) } ?: ObjectId.get(),
@@ -58,7 +64,7 @@ class ExpenseController(
     @GetMapping
     fun findByOwnerId(
         @RequestParam(required = false) sort: String?,
-        @RequestParam(required = false) type: ExpenseType?,
+        @RequestParam(required = false) type: String?,
         @RequestParam(required = false) date: Instant?,
         @RequestParam(required = false) dateFrom: Instant?,
         @RequestParam(required = false) dateTo: Instant?,
@@ -73,7 +79,7 @@ class ExpenseController(
         val ownerId = ObjectId(SecurityContextHolder.getContext().authentication.principal as String)
 
         val filter = ExpenseFilter(
-            type = type,
+            type = type?.trim()?.uppercase(),
             date = date,
             dateFrom = dateFrom,
             dateTo = dateTo,
@@ -107,6 +113,20 @@ class ExpenseController(
             repository.deleteById(ObjectId(id ))
         }
     }
+
+    private fun resolveCategory(type: String, amount: Int): String =
+        runCatching {
+            if (amount >= 0) {
+                IncomeType.valueOf(type).category.name
+            } else {
+                ExpenseType.valueOf(type).category.name
+            }
+        }.getOrElse {
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Invalid ${if (amount >= 0) "income" else "expense"} type: $type"
+            )
+        }
 
     private fun Expense.toResponse(): ExpenseResponse =
         ExpenseResponse(

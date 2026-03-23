@@ -76,7 +76,7 @@ class BannerController(
         val goal = savingGoalRepository.findByOwnerId(ownerId) ?: return null
         val savedExpenses = expenseRepository.search(
             ownerId,
-            ExpenseFilter(type = ExpenseType.SAVINGS),
+            ExpenseFilter(type = ExpenseType.SAVINGS.name),
             Sort.unsorted(),
             null
         )
