@@ -1,8 +1,6 @@
 package com.nv.expensetracker.controllers.dto
 
-data class ProfileResponse(
+data class UserResponse(
     val name: String,
     val email: String,
-    val userType: String,
-    val achievements: List<String>,
 )

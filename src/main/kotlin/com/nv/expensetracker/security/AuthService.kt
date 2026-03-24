@@ -34,13 +34,14 @@ class AuthService(
 
     private val logger = LoggerFactory.getLogger(AuthService::class.java)
 
-    fun register(email: String, password: String): TokenPair {
+    fun register(name: String, email: String, password: String): TokenPair {
         val existing = userRepository.findByEmail(email.trim())
         if (existing != null)
             throw ResponseStatusException(HttpStatus.CONFLICT, "A user with that email already exists.")
 
         val user = userRepository.save(
             User(
+                name = name.trim(),
                 email = email,
                 hashedPassword = hashEncoder.encode(password)
             )

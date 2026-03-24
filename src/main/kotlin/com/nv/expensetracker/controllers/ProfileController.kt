@@ -35,6 +35,7 @@ class ProfileController(
         val userType = determineUserType(expenses)
         val achievements = determineAchievements(userId, expenses)
         return ProfileResponse(
+            name = user.name,
             email = user.email,
             userType = userType,
             achievements = achievements,
