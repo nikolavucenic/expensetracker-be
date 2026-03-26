@@ -33,10 +33,7 @@ class AuthController(
     data class LoginRequest(
         @field:Email(message = "Invalid email format.")
         val email: String,
-        @field:Pattern(
-            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{9,}\$",
-            message = "Password must be at least 9 characters long and contain at least one digit, an uppercase letter, and a lowercase letter."
-        )
+        @field:NotBlank(message = "Password is required.")
         val password: String,
     )
 
