@@ -29,5 +29,6 @@ data class BannerResponse(
     val type: BannerType,
     val upcomingExpense: UpcomingExpenseBanner? = null,
     val savingGoal: SavingGoalBanner? = null,
-    val welcomeMessage: String? = null,
+    val welcomeTitle: String? = null,
+    val welcomeSubtitle: String? = null,
 )

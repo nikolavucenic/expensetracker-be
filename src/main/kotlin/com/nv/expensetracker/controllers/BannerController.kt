@@ -44,7 +44,8 @@ class BannerController(
         if (isNewUser(user.id, now)) {
             return BannerResponse(
                 type = BannerType.WELCOME,
-                welcomeMessage = "Welcome to ExpenseTracker! Start logging expenses to unlock insights."
+                welcomeTitle = "Welcome, ${user.name} 🎉",
+                welcomeSubtitle = "Let’s get started by setting a saving goal!"
             )
         }
 
