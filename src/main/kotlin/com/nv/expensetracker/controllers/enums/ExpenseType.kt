@@ -53,5 +53,5 @@ enum class ExpenseType(val category: ExpenseCategory) {
     CHARITY(ExpenseCategory.MISC),
     PETS(ExpenseCategory.MISC),
     OTHER(ExpenseCategory.MISC),
-    UNKNOWN(ExpenseCategory.MISC)
+    UNKNOWN(ExpenseCategory.MISC),
 }
