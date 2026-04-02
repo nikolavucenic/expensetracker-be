@@ -9,28 +9,29 @@ enum class ExpenseType(val category: ExpenseCategory) {
     INSURANCE(ExpenseCategory.ESSENTIALS),
     LOAN_PAYMENT(ExpenseCategory.ESSENTIALS),
 
-    TAKEOUT(ExpenseCategory.FOOD_AND_DRINK),
+    DELIVERY(ExpenseCategory.FOOD_AND_DRINK),
     EATING_OUT(ExpenseCategory.FOOD_AND_DRINK),
     COFFEE(ExpenseCategory.FOOD_AND_DRINK),
     ALCOHOL(ExpenseCategory.FOOD_AND_DRINK),
 
     FUEL(ExpenseCategory.TRAVEL),
     PUBLIC_TRANSPORT(ExpenseCategory.TRAVEL),
+    TAXI(ExpenseCategory.TRAVEL),
     CAR_MAINTENANCE(ExpenseCategory.TRAVEL),
-    CAR_INSURANCE(ExpenseCategory.TRAVEL),
     ACCOMMODATION(ExpenseCategory.TRAVEL),
     TOLLS(ExpenseCategory.TRAVEL),
+    FEES_AND_FINES(ExpenseCategory.TRAVEL),
 
-    HEALTHCARE(ExpenseCategory.HEALTH),
     MEDICAL_VISITS(ExpenseCategory.HEALTH),
+    SELF_CARE(ExpenseCategory.HEALTH),
     DENTAL(ExpenseCategory.HEALTH),
     MEDICINE(ExpenseCategory.HEALTH),
     GYM_MEMBERSHIP(ExpenseCategory.HEALTH),
     THERAPY(ExpenseCategory.HEALTH),
 
-    EDUCATION(ExpenseCategory.EDUCATION),
     BOOKS(ExpenseCategory.EDUCATION),
     COURSES(ExpenseCategory.EDUCATION),
+    UNIVERSITY_TUITION(ExpenseCategory.EDUCATION),
 
     HOME_REPAIR(ExpenseCategory.HOME),
     FURNITURE(ExpenseCategory.HOME),
@@ -44,15 +45,13 @@ enum class ExpenseType(val category: ExpenseCategory) {
     GAMES(ExpenseCategory.ENTERTAINMENT),
     HOBBIES(ExpenseCategory.ENTERTAINMENT),
     SOFTWARE(ExpenseCategory.ENTERTAINMENT),
+    SPORTS(ExpenseCategory.ENTERTAINMENT),
+    CONCERTS(ExpenseCategory.ENTERTAINMENT),
     CLOUD_SERVICES(ExpenseCategory.ENTERTAINMENT),
 
     GIFTS(ExpenseCategory.MISC),
     CHARITY(ExpenseCategory.MISC),
     PETS(ExpenseCategory.MISC),
-    CHILD_EXPENSES(ExpenseCategory.MISC),
-    FEES_AND_FINES(ExpenseCategory.MISC),
-    EMERGENCY(ExpenseCategory.MISC),
-    SAVINGS(ExpenseCategory.MISC),
     OTHER(ExpenseCategory.MISC),
-    UNKNOWN(ExpenseCategory.MISC)
+    UNKNOWN(ExpenseCategory.MISC),
 }
