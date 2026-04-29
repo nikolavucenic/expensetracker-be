@@ -49,7 +49,9 @@ class BannerController(
             )
         }
 
-        return null
+        return BannerResponse(
+            type = BannerType.NONE
+        )
     }
 
     private fun findUpcomingExpenseBanner(ownerId: ObjectId, now: Instant): BannerResponse? {

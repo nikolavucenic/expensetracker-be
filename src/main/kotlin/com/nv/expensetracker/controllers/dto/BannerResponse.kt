@@ -6,6 +6,7 @@ enum class BannerType {
     UPCOMING_EXPENSE,
     SAVING_GOAL,
     WELCOME,
+    NONE,
 }
 
 data class UpcomingExpenseBanner(
